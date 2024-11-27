@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:12-alpine
+    profiles:
+      - db
+      - api
+      - local
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: outecho
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    command: '-c log_statement=all'
+
+  postgres-test:
+    image: postgres:12-alpine
+    profiles:
+      - test
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+    command: '-c log_statement=all'
