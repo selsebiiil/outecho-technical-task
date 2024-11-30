@@ -7,6 +7,8 @@ export enum Category {
   TECHNOLOGY = 'TECHNOLOGY',
   HEALTH = 'HEALTH',
   EDUCATION = 'EDUCATION',
+  SPORTS = 'SPORTS',
+  ENTERTAINMENT = 'ENTERTAINMENT',
 }
 
 export class CreateUpdateTopicDto {
