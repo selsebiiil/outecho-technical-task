@@ -7,11 +7,83 @@ datasource db {
   url               = env("DATABASE_URL")         // Pooling URL
   directUrl         = env("DIRECT_URL")           // Direct URL
 }
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Category {
+  GENERAL
+  TECHNOLOGY
+  SPORTS
+  ENTERTAINMENT
+  HEALTH
+  EDUCATION
+}
+
+enum LikeStatus {
+  LIKE
+  DISLIKE
+}
+
+enum LikeType {
+  TOPIC
+  COMMENT
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
+  id        Int         @id @default(autoincrement())
+  email     String      @unique
+  firstName String?
+  lastName  String?
+  gender    Gender
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  avatarUrl String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  topics    Topic[]     @relation("UserTopics")
+  comments  Comment[]   @relation("UserComments")
+  likes     Like[]      @relation("UserLikes")
+}
+
+model Topic {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String
+  category    Category
+  postedBy    User        @relation("UserTopics", fields: [postedById], references: [id], onDelete: Cascade)
+  postedById  Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  comments    Comment[]   @relation("TopicComments")
+  topicLikes  Like[]      @relation("TopicLikes")
+}
+
+model Comment {
+  id         Int         @id @default(autoincrement())
+  content    String
+  topic      Topic       @relation("TopicComments", fields: [topicId], references: [id], onDelete: Cascade)
+  topicId    Int
+  author     User        @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId   Int
+  likes      Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  commentLikes   Like[]  @relation("CommentLikes")
+}
+
+model Like {
+  id         Int         @id @default(autoincrement())
+  likeStatus LikeStatus
+  likeType   LikeType
+  userId     Int
+  topicId    Int?
+  commentId  Int?
+  user       User        @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
+  topic      Topic?      @relation("TopicLikes", fields: [topicId], references: [id], onDelete: Cascade)
+  comment    Comment?    @relation("CommentLikes", fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+
+  @@unique([userId, topicId, likeType])
 }
